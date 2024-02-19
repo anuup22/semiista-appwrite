@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import tailwindcssAnimate from 'tailwindcss-animate';
 
 export default {
   darkMode: ['class'],
@@ -14,7 +15,6 @@ export default {
       padding: '2rem',
       screens: {
         '2xl': '1400px',
-      
       },
     },
     extend: {
@@ -35,7 +35,6 @@ export default {
       },
       screens: {
         'xs': '480px',
-      
       },
       width: {
         '420': '420px',
@@ -43,7 +42,6 @@ export default {
       },
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
-
       },
       keyframes: {
         'accordion-down': {
@@ -61,5 +59,5 @@ export default {
       },
     },
   },
-  plugins: [import('tailwindcss-animate')],
+  plugins: [tailwindcssAnimate],
 };
