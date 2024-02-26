@@ -11,7 +11,7 @@ import { INewUser } from '@/types';
 //for creating a new user account
 export const useCreateUserAccount = () => { //useCreateUserAccountMutation is a custom hook
     return useMutation({
-        mutationFn: (user: INewUser) => createUserAccount(user),
+        mutationFn: (user: INewUser) => createUserAccount(user)
     });
 };
 
@@ -21,6 +21,6 @@ export const useSignInAccount = () => { // Mutation word is removed from the fun
         mutationFn: (user: {
             email: string;
             password: string;
-        }) => signInAccount(user),
+        }) => signInAccount(user)
     }); 
 };
