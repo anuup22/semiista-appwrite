@@ -1,9 +1,8 @@
 //to simplify data fetching and state management in your application
 import { 
-    useQuery, //for fetching the data
+    
     useMutation, //for modifying the data
-    useQueryClient, 
-    useInfiniteQuery, 
+   
 } from '@tanstack/react-query';
 import { createUserAccount, signInAccount, signOutAccount } from '../appwrite/api';
 import { INewUser } from '@/types';
