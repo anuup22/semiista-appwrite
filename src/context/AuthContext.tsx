@@ -1,7 +1,8 @@
-import { getCurrentUser } from '@/lib/appwrite/api'
-import { IContextType, IUser } from '@/types/index'
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
+
+import { IUser } from "@/types";
+import { getCurrentUser } from "@/lib/appwrite/api";
 
 export const INITIAL_USER = {
   id: "",
@@ -10,9 +11,8 @@ export const INITIAL_USER = {
   email: "",
   imageUrl: "",
   bio: "",
-}
+};
 
-//to know wheather we have a logged in user at all times
 const INITIAL_STATE = {
   user: INITIAL_USER,
   isLoading: false,
@@ -20,23 +20,30 @@ const INITIAL_STATE = {
   setUser: () => {},
   setIsAuthenticated: () => {},
   checkAuthUser: async () => false as boolean,
-}
+};
 
-const AuthContext = createContext<IContextType>(INITIAL_STATE)
+type IContextType = {
+  user: IUser;
+  isLoading: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
+  isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  checkAuthUser: () => Promise<boolean>;
+};
 
-const AuthProvider = ({ children }: { children: React.ReactNode}) => {
-  const [user, setUser] = useState<IUser>(INITIAL_USER)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState<IUser>(INITIAL_USER);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  //checkAuthUser is to be called whenever page is refreshed for that we need to use useEffect
   const checkAuthUser = async () => {
+    setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
-
-      if(currentAccount){ 
+      if (currentAccount) {
         setUser({
           id: currentAccount.$id,
           name: currentAccount.name,
@@ -44,44 +51,33 @@ const AuthProvider = ({ children }: { children: React.ReactNode}) => {
           email: currentAccount.email,
           imageUrl: currentAccount.imageUrl,
           bio: currentAccount.bio,
-        })
-
+        });
         setIsAuthenticated(true);
+
         return true;
       }
-      return false;
-      /*
-      //a better and cleaner way to write the above code
-      //but in typescript, if getCurrentUser() fails and catch block is executed, it will not return anything which is not allowed in typescript
-      const { $id, name, username, email, imageUrl, bio } = await getCurrentUser();
 
-      if($id){
-        setUser({ id: $id, name, username, email, imageUrl, bio, })
-      }
-      */
-    }
-    catch (error) {
-      console.log(error)
       return false;
-    }
-    finally {
-      //to tell that we are done with loading
+    } catch (error) {
+      console.error(error);
+      return false;
+    } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if(
-      //if not signed in navigate the user to the signin page
-      localStorage.getItem("cookieFallback") === "[]" ||
-      localStorage.getItem("cookieFallback") === null
+    const cookieFallback = localStorage.getItem("cookieFallback");
+    if (
+      cookieFallback === "[]" ||
+      cookieFallback === null ||
+      cookieFallback === undefined
     ) {
       navigate("/sign-in");
     }
-    else {
-      checkAuthUser();
-    }
-  }, [])
+
+    checkAuthUser();
+  }, []);
 
   const value = {
     user,
@@ -90,16 +86,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode}) => {
     isAuthenticated,
     setIsAuthenticated,
     checkAuthUser,
-  }
+  };
 
-  return (
-    // everything inside AuthContext.Provider will have access of User is logged in or not
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-//exporting AuthProvider and AuthContext to be used in the App.tsx
-export default AuthProvider;
 export const useUserContext = () => useContext(AuthContext);

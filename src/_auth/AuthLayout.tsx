@@ -1,19 +1,17 @@
-//it is going to wrap Signin and Signup components
+import { Outlet, Navigate } from "react-router-dom";
 
-import { Outlet, Navigate } from "react-router-dom"
+import { useUserContext } from "@/context/AuthContext";
 
-const AuthLayout = () => {
-  const isAuthenticated = false;
+export default function AuthLayout() {
+  const { isAuthenticated } = useUserContext();
 
-  //when redirected to /sign-up, we check if the user is authenticated, if yes, we redirect to the home page else we show the signup form {outlet}
   return (
     <>
       {isAuthenticated ? (
-      <Navigate to='/' />
+        <Navigate to="/" />
       ) : (
         <>
           <section className="flex flex-1 justify-center items-center flex-col py-10">
-            {/* {outlet} is a placeholder for the /sign-up route */}
             <Outlet />
           </section>
 
@@ -25,7 +23,5 @@ const AuthLayout = () => {
         </>
       )}
     </>
-  )
+  );
 }
-
-export default AuthLayout
